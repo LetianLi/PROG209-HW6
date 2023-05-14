@@ -130,13 +130,13 @@ function processTaskList() {
             sortValue = propA - propB;
         }
 
-        // flip sign if descending
-        if (sortAscending) {
-            return sortValue;
-        } else {
-            return -sortValue;
-        }
+        return sortValue;
     });
+
+    // Reverse array if descending
+    if (!sortAscending) {
+        sortedTasks.reverse();
+    }
 
     return sortedTasks;
 }
