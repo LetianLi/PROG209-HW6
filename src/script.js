@@ -141,12 +141,7 @@ function processTaskList() {
     return sortedTasks;
 }
 
-function createTaskTable(processedTaskList) {
-    let table = document.getElementById("table");
-
-    // clear table
-    table.innerHTML = "";
-
+function generateHeaderRow() {
     // create header row
     let headerRow = document.createElement("tr"); // tr = table row
 
@@ -170,42 +165,55 @@ function createTaskTable(processedTaskList) {
     doneHeader.innerHTML = "Done";
     headerRow.appendChild(doneHeader);
 
-    // append header row into table
-    table.appendChild(headerRow);
+    return headerRow;
+}
 
+function generateTaskRow(task) {
+    // create task row
+    let row = document.createElement("tr");
+
+    // task name col
+    let nameCell = document.createElement("td"); // td = table data
+    nameCell.innerHTML = task.name;
+    row.appendChild(nameCell);
+
+    // task type col
+    let typeCell = document.createElement("td");
+    typeCell.innerHTML = task.type;
+    row.appendChild(typeCell);
+
+    // task priority col
+    let priorityCell = document.createElement("td");
+    priorityCell.innerHTML = task.priority;
+    row.appendChild(priorityCell);
+
+    // task done col and checkbox
+    let doneCell = document.createElement("td"); 
+    let doneCheckbox = document.createElement("input");
+    doneCheckbox.type = "checkbox";
+    doneCheckbox.checked = task.done;
+    doneCheckbox.addEventListener("change", function(){
+        task.done = this.checked;
+    });
+    doneCell.appendChild(doneCheckbox);
+    row.appendChild(doneCell);
+
+    return row;
+}
+
+function createTaskTable(processedTaskList) {
+    let table = document.getElementById("table");
+
+    // clear table
+    table.innerHTML = "";
+
+    // add header row
+    let headerRow = generateHeaderRow();
+    table.appendChild(headerRow);
 
     // set up rows for every task
     processedTaskList.forEach(task => {
-        // create task row
-        let row = document.createElement("tr");
-
-        // task name col
-        let nameCell = document.createElement("td"); // td = table data
-        nameCell.innerHTML = task.name;
-        row.appendChild(nameCell);
-
-        // task type col
-        let typeCell = document.createElement("td");
-        typeCell.innerHTML = task.type;
-        row.appendChild(typeCell);
-
-        // task priority col
-        let priorityCell = document.createElement("td");
-        priorityCell.innerHTML = task.priority;
-        row.appendChild(priorityCell);
-
-        // task done col and checkbox
-        let doneCell = document.createElement("td"); 
-        let doneCheckbox = document.createElement("input");
-        doneCheckbox.type = "checkbox";
-        doneCheckbox.checked = task.done;
-        doneCheckbox.addEventListener("change", function(){
-            task.done = this.checked;
-        });
-        doneCell.appendChild(doneCheckbox);
-        row.appendChild(doneCell);
-
-        // append task row into table
-        table.appendChild(row);
+        let taskRow = generateTaskRow(task);
+        table.appendChild(taskRow);
     });
 }
