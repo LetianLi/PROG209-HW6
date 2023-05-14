@@ -1,4 +1,5 @@
 let tasks = [];
+let selectedTaskId = undefined;
 
 let Task = function(taskName, taskType, taskPriority) {
     this.name = taskName;
@@ -6,6 +7,7 @@ let Task = function(taskName, taskType, taskPriority) {
     this.priority = taskPriority;
     this.done = false;
     this.timeAdded = Date.now();
+    this.uuid = crypto.randomUUID();
 
     // priorityValue is used for sorting
     switch (this.priority) {
@@ -31,10 +33,14 @@ tasks.push(new Task("Do Homework", "School", "Medium"));
 tasks.push(new Task("Review class notes", "School", "Medium"));
 
 document.addEventListener("DOMContentLoaded", function (event) {
-    document.getElementById("getStartedBtn").addEventListener("click", goToAddPage);
-    document.getElementById("getStartedBtn2").addEventListener("click", goToAddPage);
+    // functional buttons
     document.getElementById("addTaskBtn").addEventListener("click", createArrayObj);
     document.getElementById("deleteDoneTasksBtn").addEventListener("click", deleteDoneTasks);
+
+    // redirect buttons
+    document.getElementById("getStartedBtn").addEventListener("click", () => window.location = "#AddPage");
+    document.getElementById("getStartedBtn2").addEventListener("click", () => window.location = "#AddPage");
+    document.getElementById("returnToListBtn").addEventListener("click", () => window.location = "#DisplayPage");
 
     // regenerate table whenever sort/filter settings change
     let regenDisplayElements = Array.from(document.getElementsByClassName("regenDisplay"));
@@ -45,9 +51,9 @@ $(document).on("pagebeforeshow", "#DisplayPage", function (event) {
     displayTasks();
 });
 
-function goToAddPage() {
-    window.location = "#AddPage";
-}
+$(document).on("pagebeforeshow", "#PropertyPage", function (event) { 
+    displayProperties();
+});
 
 function createArrayObj() {
     let taskNameInput = document.getElementById("taskNameInput");
@@ -79,6 +85,31 @@ function createArrayObj() {
         taskNameInput.value = "";
         taskNameInput.focus();
     }
+}
+
+function createPair(key, value) {
+    let pElement = document.createElement("p");
+    pElement.innerHTML = key + ": " + value;
+    return pElement;
+}
+
+function displayProperties() {
+    let displayWindow = document.getElementById("propertyDisplay");
+
+    let displayedTask = tasks.find(task => task.uuid === selectedTaskId);
+
+    if (displayedTask == undefined) {
+        displayWindow.innerHTML = "Something went wrong";
+        console.log("Could not find task of id: " + selectedTaskId);
+        console.log("Current ids include: " + tasks.map(task => task.uuid))
+        return;
+    }
+
+    displayWindow.innerHTML = "";
+    displayWindow.appendChild(createPair("Task Name", displayedTask.name));
+    displayWindow.appendChild(createPair("Task Type", displayedTask.type));
+    displayWindow.appendChild(createPair("Task Priority", displayedTask.priority));
+    displayWindow.appendChild(createPair("Task Complete", displayedTask.done));
 }
 
 function deleteDoneTasks() {
@@ -175,6 +206,10 @@ function generateTaskRow(task) {
     // task name col
     let nameCell = document.createElement("td"); // td = table data
     nameCell.innerHTML = task.name;
+    nameCell.addEventListener("click", () => {
+        selectedTaskId = task.uuid;
+        window.location = "#PropertyPage";
+    });
     row.appendChild(nameCell);
 
     // task type col
